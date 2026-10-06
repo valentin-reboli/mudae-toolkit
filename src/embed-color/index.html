@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- mudae.net images fail to load with a referrer -->
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="Pick embed colors for your Mudae harem from each character's image."
+    />
+    <title>Mudae Embed Color Generator</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/embed-color.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"
+      integrity="sha384-xglTO/8Oa3fXW5xzsGkQbc0ofkFDkEwusRGEKsNk+DHlAeoH6cbU8Pu/1KhMAVqz"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script type="module" src="../js/embed-color/main.js"></script>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Color choice">
+        <h2>Color choice</h2>
+        <form id="choices" class="choices"></form>
+      </aside>
+
+      <main class="content">
+        <a class="back-link" href="../">← Mudae Toolkit</a>
+        <h1>Mudae Embed Color Generator</h1>
+        <p class="intro">
+          Send
+          <button
+            type="button"
+            class="inline-command"
+            id="list-command"
+            title="Click to copy"
+          ></button>
+          in your Mudae channel and paste the result (sent in a DM) below.
+        </p>
+
+        <textarea
+          id="harem-input"
+          class="harem-input"
+          spellcheck="false"
+          aria-label="Mudae harem list"
+          placeholder="Name - Series (#aabbcc) - https://mudae.net/uploads/..."
+        ></textarea>
+
+        <div class="toolbar">
+          <span class="status" id="status" role="status"></span>
+          <button type="button" class="button" id="download-script" hidden>
+            Download AutoHotkey script
+          </button>
+        </div>
+
+        <ul class="character-list" id="characters"></ul>
+      </main>
+    </div>
+  </body>
+</html>

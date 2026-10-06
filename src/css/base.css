@@ -1,0 +1,102 @@
+/* theme */
+
+:root {
+  --bg: #f4f4f8;
+  --surface: #ffffff;
+  --text: #16161d;
+  --text-muted: #666666;
+  --border: #dddddd;
+  --accent: #5865f2;
+  --danger: #dd3333;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --font-mono: ui-monospace, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1f22;
+    --surface: #2b2d31;
+    --text: #f2f3f5;
+    --text-muted: #a0a3a8;
+    --border: #3f4147;
+    --accent: #7983f5;
+    --danger: #f06a6a;
+  }
+}
+
+/* base */
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    15px/1.5 system-ui,
+    "Segoe UI",
+    sans-serif;
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+}
+
+/* controls */
+
+.button {
+  padding: 7px 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.button.ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.inline-command {
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font: 14px var(--font-mono);
+  cursor: pointer;
+}
+
+.intro {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+}
+
+.error-text {
+  color: var(--danger);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
