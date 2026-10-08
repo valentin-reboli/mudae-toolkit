@@ -2,6 +2,8 @@
 
 Small tools for the [Mudae](https://mudae.net) Discord bot.
 
+Deploy: https://valentin-reboli.github.io/mudae-toolkit/
+
 ## Tools
 
 ### Embed Color Generator
