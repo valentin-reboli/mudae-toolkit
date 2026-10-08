@@ -1,6 +1,5 @@
-import { VIBRANT_SWATCHES } from "./choices.js";
-import { rgbToHex } from "../lib/color.js";
-import { collectPixels, dominantColor, meanColor } from "./pixels.js";
+import { pickImageColors } from "./palette.js";
+import { collectPixels, edgePixels } from "./pixels.js";
 
 const SAMPLE_SIZE = 100;
 const cache = new Map();
@@ -18,41 +17,19 @@ export function loadImage(url) {
   });
 }
 
-function readPixels(img) {
+function readImageData(img) {
   const scale = Math.min(1, SAMPLE_SIZE / Math.max(img.naturalWidth, img.naturalHeight));
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
   canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  return collectPixels(ctx.getImageData(0, 0, canvas.width, canvas.height).data);
-}
-
-async function getVibrantSwatches(img) {
-  if (!window.Vibrant) return {};
-  try {
-    const palette = await window.Vibrant.from(img).getPalette();
-    const swatches = {};
-    for (const name of VIBRANT_SWATCHES) {
-      if (palette[name]) swatches[name] = palette[name].hex;
-    }
-    return swatches;
-  } catch (err) {
-    console.warn("Vibrant failed:", err);
-    return {};
-  }
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 async function analyze(url) {
-  const img = await loadImage(url);
-  const pixels = readPixels(img);
-  const colors = await getVibrantSwatches(img);
-
-  const dominant = dominantColor(pixels);
-  const average = meanColor(pixels);
-  if (dominant) colors.Dominant = rgbToHex(dominant);
-  if (average) colors.Average = rgbToHex(average);
-  return colors;
+  const { data, width, height } = readImageData(await loadImage(url));
+  return pickImageColors(collectPixels(data), edgePixels(data, width, height));
 }
 
 export function analyzeImage(url) {

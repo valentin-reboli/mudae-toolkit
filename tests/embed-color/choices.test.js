@@ -38,27 +38,27 @@ describe("CHOICE_GROUPS", () => {
 
 describe("resolveColor", () => {
   it("returns null before an image is analyzed", () => {
-    assert.equal(resolveColor(undefined, "Vibrant"), null);
+    assert.equal(resolveColor(undefined, "Accent"), null);
   });
 
   it("returns the image color directly for image choices", () => {
-    assert.equal(resolveColor({ Muted: "#123456" }, "Muted"), "#123456");
+    assert.equal(resolveColor({ Dark: "#123456" }, "Dark"), "#123456");
   });
 
-  it("falls back to another image color when the chosen one is missing", () => {
-    assert.equal(resolveColor({ Dominant: "#123456" }, "LightVibrant"), "#123456");
+  it("falls back to the main color when the chosen one is missing", () => {
+    assert.equal(resolveColor({ Main: "#123456", Light: "#eeeeee" }, "Secondary"), "#123456");
   });
 
-  it("builds harmonies from the vibrant color", () => {
-    assert.equal(resolveColor({ Vibrant: "#ff0000" }, "Complementary"), "#00ffff");
+  it("builds harmonies from the accent color", () => {
+    assert.equal(resolveColor({ Accent: "#ff0000", Main: "#00ff00" }, "Complementary"), "#00ffff");
   });
 
-  it("uses the dominant color when there is no vibrant one", () => {
-    assert.equal(resolveColor({ Dominant: "#ff0000" }, "Complementary"), "#00ffff");
+  it("uses the main color when there is no accent", () => {
+    assert.equal(resolveColor({ Main: "#ff0000" }, "Complementary"), "#00ffff");
   });
 
   it("falls back to the default choice for unknown ids", () => {
-    assert.equal(resolveColor({ Vibrant: "#ff0000" }, "Nope"), "#ff0000");
+    assert.equal(resolveColor({ Accent: "#ff0000" }, "Vibrant"), "#ff0000");
   });
 
   it("returns null when the image produced no colors", () => {

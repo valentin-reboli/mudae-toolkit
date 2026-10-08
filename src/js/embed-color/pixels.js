@@ -23,6 +23,21 @@ export function collectPixels(rgba) {
   return foreground.length >= all.length * 0.1 ? foreground : all;
 }
 
+// Visible pixels in a thin band around the border, where the background usually is
+export function edgePixels(rgba, width, height, band = 0.08) {
+  const bandX = Math.max(1, Math.round(width * band));
+  const bandY = Math.max(1, Math.round(height * band));
+  const pixels = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const onEdge = x < bandX || x >= width - bandX || y < bandY || y >= height - bandY;
+      const i = (y * width + x) * 4;
+      if (onEdge && rgba[i + 3] >= MIN_ALPHA) pixels.push([rgba[i], rgba[i + 1], rgba[i + 2]]);
+    }
+  }
+  return pixels;
+}
+
 export function meanColor(pixels) {
   if (!pixels.length) return null;
   const sum = [0, 0, 0];
@@ -53,9 +68,10 @@ function initialCenters(pixels, k) {
   return centers;
 }
 
-// Groups similar pixels with k-means and returns the center of the largest group
-export function dominantColor(pixels, k = 6) {
-  if (!pixels.length) return null;
+// Groups similar pixels with k-means. Returns [{ color, share }] sorted from biggest to smallest,
+// where share is the fraction of pixels in that group.
+export function clusterColors(pixels, k = 8) {
+  if (!pixels.length) return [];
   const centers = initialCenters(pixels, k);
   let counts = [];
 
@@ -77,5 +93,12 @@ export function dominantColor(pixels, k = 6) {
     });
   }
 
-  return centers[counts.indexOf(Math.max(...counts))];
+  return centers
+    .map((color, j) => ({ color, share: counts[j] / pixels.length }))
+    .filter((c) => c.share > 0)
+    .sort((a, b) => b.share - a.share);
+}
+
+export function dominantColor(pixels, k = 6) {
+  return clusterColors(pixels, k)[0]?.color ?? null;
 }
