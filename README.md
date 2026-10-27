@@ -18,3 +18,17 @@ Picks embed colors for your harem based on each character's image. Based on the 
 
 The AutoHotkey script needs AutoHotkey v2. It sends one command every 2 seconds and stops if you
 move the mouse or press a key.
+
+### Sphere Advisor
+
+Tells you which sphere upgrades to buy next, following the upgrade chart (all four columns: Easy,
+Medium, Hard and Expert). Perk 9 and the perk 5, perk 8 and full upgrades go on the wishlist
+characters you own, in wishlist order; perk 10 goes on any character.
+
+1. Send `$mmsz=z!`, Mudae will DM you the characters with spheres in them; paste the whole DM
+2. Send `$shop` and paste the reply (or type the 10 levels)
+3. Send `$wl` and paste it, the ✅ lines are the wishlist characters you own
+4. Enter your spheres and how many characters you own
+
+It lists every upgrade you can afford now, click by click, then what to save up for next. Your
+pastes are kept in your browser only.
