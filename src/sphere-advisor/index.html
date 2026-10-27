@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Paste your Mudae sphere replies and get the next upgrades to buy, in upgrade chart order."
+    />
+    <title>Mudae Sphere Advisor</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/sphere-advisor.css" />
+    <script type="module" src="../js/sphere-advisor/main.js"></script>
+  </head>
+  <body>
+    <div class="advisor">
+      <a class="back-link" href="../">← Mudae Toolkit</a>
+      <h1>Mudae Sphere Advisor</h1>
+      <p class="intro">
+        Send each command in your Mudae channel, copy the reply and paste it below. You get the
+        upgrades to buy next, in the order of the upgrade chart (all four columns). Everything stays
+        in your browser.
+      </p>
+
+      <div class="columns">
+        <section>
+          <div class="card">
+            <h2 class="step"><span class="num">1</span> Send <code>$mmsz=z!</code></h2>
+            <p class="hint">
+              Mudae DMs you every character with spheres in it. Paste the whole DM (all of its
+              messages if it's split).
+            </p>
+            <textarea
+              id="mmsz"
+              spellcheck="false"
+              aria-label="$mmsz=z! reply"
+              placeholder="Rain Carradine 20,000 sp - 1 (x5), 2 (x5), 3 (x5), ..."
+            ></textarea>
+            <p class="parsed" id="mmsz-status" role="status"></p>
+          </div>
+
+          <div class="card">
+            <h2 class="step"><span class="num">2</span> Send <code>$shop</code></h2>
+            <p class="hint">Paste the reply, or type the 10 levels yourself.</p>
+            <textarea
+              id="shop"
+              spellcheck="false"
+              aria-label="$shop reply"
+              placeholder="You have 1,035 :sp:&#10;[LVL 1]  A part of the spawn chance bonus ..."
+            ></textarea>
+            <p class="parsed" id="shop-status" role="status"></p>
+            <div class="shop-levels" id="shop-levels"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="step"><span class="num">3</span> Send <code>$wl</code></h2>
+            <p class="hint">
+              The ✅ lines are wishlist characters you own: they get perks 9, 5 and 8 and full
+              upgrades, in this order. Paste every page.
+            </p>
+            <textarea
+              id="wl"
+              spellcheck="false"
+              aria-label="$wl reply"
+              placeholder="Satoru Gojo ✅ ⭐&#10;Roronoa Zoro&#10;Naruto Uzumaki ✅"
+            ></textarea>
+            <p class="parsed" id="wl-status" role="status"></p>
+          </div>
+
+          <div class="card">
+            <h2 class="step"><span class="num">4</span> A few numbers</h2>
+            <div class="numbers">
+              <label>Spheres you have<input type="number" id="balance" min="0" /></label>
+              <label>Characters you own<input type="number" id="owned" min="0" /></label>
+              <label>Spheres a day (optional)<input type="number" id="rate" min="0" /></label>
+            </div>
+          </div>
+          <button type="button" class="button ghost" id="clear">Clear everything</button>
+        </section>
+
+        <section>
+          <div class="card" id="result"></div>
+          <div class="card" id="characters"></div>
+          <div class="card">
+            <h2>The plan</h2>
+            <p class="hint">The upgrade chart, all four columns, top to bottom.</p>
+            <ol class="plan" id="plan"></ol>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

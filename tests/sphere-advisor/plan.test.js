@@ -1,0 +1,93 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+
+import { parseInvested } from "../../src/js/sphere-advisor/parse.js";
+import {
+  PLAN,
+  SphereState,
+  groupSteps,
+  itemCost,
+  nextItem,
+  parseItem,
+  remainingCost,
+  shoppingList,
+} from "../../src/js/sphere-advisor/plan.js";
+
+const SHOPS = 4000 * (28 + 55 + 55 + 3); // shop2 to 7, shop9 and shop5 to 10, shop10 to 2
+
+describe("plan", () => {
+  it("parses every item", () => {
+    assert.equal(PLAN.length, 56);
+    assert.deepEqual(parseItem("full x10"), { kind: "full", perk: 0, target: 10 });
+    assert.deepEqual(parseItem("shop2 lvl2"), { kind: "shop", perk: 2, target: 2 });
+    assert.throws(() => parseItem("op11 x2"));
+  });
+
+  it("starts with perk 9 and passes over what waits for characters", () => {
+    const state = new SphereState({}, [{ name: "A", mine: true }], 3);
+    assert.deepEqual(nextItem(state), parseItem("op9 x10"));
+    assert.deepEqual(state.nextBuy(nextItem(state)), ["A", 9]);
+    state.mark("A", 9);
+    assert.deepEqual(nextItem(state), parseItem("shop2 lvl1"));
+    assert.equal(itemCost(nextItem(state), state), 4000);
+  });
+
+  it("costs the whole plan like the bot does", () => {
+    // perk 9 on 17, perk 10 on 300, perks 5 and 8 on 13, then the rest of 17 (3,000 per maxed perk 1-5)
+    const ops = 17000 + 300000 + 13 * 4000 + 13 * (4 * 3000 + 2000) + 4 * (4 * 3000 + 3000 + 3000);
+    assert.equal(remainingCost(new SphereState()), ops + SHOPS);
+  });
+
+  it("counts only owned characters when asked", () => {
+    const state = new SphereState({ A: { 9: 1, 1: 2 } }, [{ name: "A", mine: true }], 3);
+    const fullA = 3000 - 600 + 3 * 3000 + 2000;
+    assert.equal(remainingCost(state, true), 3 * 1000 + 4000 + fullA + SHOPS);
+  });
+
+  it("treats (x5) as maxed", () => {
+    const state = new SphereState(
+      parseInvested("Rain 20,000 sp - 1 (x5), 2 (x5), 3 (x5), 4 (x5), 5 (x5), 6, 7, 8, 9, 10"),
+    );
+    assert.ok(state.isFull("Rain"));
+  });
+
+  it("buys a full upgrade's cheapest missing perk first", () => {
+    const state = new SphereState({ A: { 5: 5, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, 2: 3 } }, [
+      { name: "A", mine: true },
+    ]);
+    const full = parseItem("full x1");
+    assert.deepEqual(state.nextBuy(full), ["A", 1]);
+    state.levels.A[1] = 4;
+    assert.deepEqual(state.nextBuy(full), ["A", 3]);
+  });
+});
+
+describe("shoppingList", () => {
+  it("lists every affordable click and the next one to save for", () => {
+    const wishlist = [{ name: "Gojo", mine: true }];
+    const state = new SphereState({ Gojo: { 9: 1, 10: 1 } }, wishlist, 1, { 2: 2, 9: 1 });
+    const { steps, left, next } = shoppingList(state, 4000);
+    // perk 5 levels 1 to 4 (2,000), then perk 5 level 5 costs 1,000
+    assert.deepEqual(
+      steps.map((s) => [s.name, s.perk, s.level, s.cost]),
+      [
+        ["Gojo", 5, 1, 200],
+        ["Gojo", 5, 2, 400],
+        ["Gojo", 5, 3, 600],
+        ["Gojo", 5, 4, 800],
+        ["Gojo", 5, 5, 1000],
+        ["Gojo", 8, undefined, 1000],
+      ],
+    );
+    assert.equal(left, 0);
+    assert.deepEqual(next.item, parseItem("shop5 lvl1"));
+    assert.equal(groupSteps(steps).length, 2);
+  });
+
+  it("groups perk 10 on characters it doesn't know by name", () => {
+    const state = new SphereState({}, [], 5, { 2: 1 });
+    const { steps } = shoppingList(state, 3000);
+    assert.equal(steps.length, 3);
+    assert.equal(groupSteps(steps).length, 1);
+  });
+});
