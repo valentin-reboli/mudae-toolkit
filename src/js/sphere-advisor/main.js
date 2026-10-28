@@ -37,6 +37,7 @@ byId("paths").innerHTML = PATHS.map(
     <input type="radio" name="path" value="${p.id}" />
     <span class="path-top">
       <span class="path-name">${p.name}</span>
+      <span class="path-rec-tag">Recommended</span>
       <span class="path-radio" aria-hidden="true"></span>
     </span>
     <span class="path-meter" aria-label="Difficulty ${i + 1} of ${PATHS.length}">${PATHS.map(
@@ -320,9 +321,32 @@ function updateScrollCue() {
     : `↑ Scroll up for earlier steps · ${plan.length} steps in all`;
 }
 
+// Hard needs 10+ characters you can roll every day: the owned wishlist characters on $wls.
+// Medium otherwise; Expert's keys and $kt level aren't in any paste, and Easy is part of Medium.
+const HARD_MIN = 10;
+
+function showRecommended(state) {
+  const owned = state.wl.length;
+  const rec = owned >= HARD_MIN ? "hard" : "medium";
+  for (const el of byId("paths").querySelectorAll(".path")) {
+    el.classList.toggle("recommended", el.dataset.path === rec);
+  }
+  let why;
+  if (rec === "hard") {
+    why = `<b>Hard</b> is recommended: you own ${owned} wishlist characters, and it needs ${HARD_MIN}+ you can roll every day.`;
+  } else if (!byId("wl").value.trim()) {
+    why = `<b>Medium</b> is recommended for most players. Paste <code>$wls</code> below to check if you qualify for Hard.`;
+  } else {
+    why = `<b>Medium</b> is recommended: you own ${owned} wishlist character${owned === 1 ? "" : "s"}, and Hard needs ${HARD_MIN}+.`;
+  }
+  byId("path-rec").innerHTML =
+    `${why} Expert can't be checked from the pastes, so pick it yourself if you meet its requirements.`;
+}
+
 function render() {
   const inputs = readInputs();
   save();
+  showRecommended(inputs.state);
   if (!inputs.started) {
     byId("result").innerHTML =
       '<h2>What to buy</h2><p class="muted">Paste at least <code>$mmsz=z!</code> and <code>$shop</code> to start.</p>';
