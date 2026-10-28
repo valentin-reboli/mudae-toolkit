@@ -357,6 +357,21 @@ function render() {
   renderPlan(inputs.state);
 }
 
+// Any Mudae command shown on the page copies itself on click
+document.addEventListener("click", async (event) => {
+  const code = event.target.closest("code");
+  const command = code?.textContent.trim();
+  if (!command?.startsWith("$")) return;
+  event.preventDefault();
+  try {
+    await navigator.clipboard.writeText(command);
+  } catch {
+    return; // no clipboard access (old browser or not https)
+  }
+  code.classList.add("copied");
+  setTimeout(() => code.classList.remove("copied"), 1200);
+});
+
 load();
 showPath();
 byId("plan-scroll").addEventListener("scroll", updateScrollCue, { passive: true });
