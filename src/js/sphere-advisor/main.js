@@ -217,7 +217,6 @@ function renderResult({ state, balance, rate }) {
     html += `<ol class="buys">${lines(steps)
       .map((g) => `<li>${stepLine(g)}</li>`)
       .join("")}</ol>`;
-    html += `<p class="muted">Mudae shows no confirmation: the button changes price or says MAX. Paste a fresh <code>$mmsz=z!</code> and <code>$shop</code> afterwards to check.</p>`;
   }
   if (next) {
     let what;
