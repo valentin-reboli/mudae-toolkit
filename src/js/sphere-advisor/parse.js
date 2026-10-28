@@ -34,7 +34,7 @@ export function parseShop(text) {
   return { levels, balance: balance ? +balance[1].replace(/,/g, "") : null };
 }
 
-// $wls: one wish per line, ✅ on the ones you own
+// $wls: one wish per line, ✅ on the ones you own, ⭐ on starwishes
 export function parseWishlist(text) {
   const out = [];
   for (const raw of (text || "").split(/\r?\n/)) {
@@ -44,7 +44,7 @@ export function parseWishlist(text) {
     if (!line || /wishlist|^page|^\d+\s*\/\s*\d+$/i.test(line)) continue;
     let name = line.split(/\s*[✅❌⭐💞🔒]/u)[0].trim();
     if (markdown) name = name.replace(/\\(.)/g, "$1");
-    if (name) out.push({ name, mine: line.includes("✅") });
+    if (name) out.push({ name, mine: line.includes("✅"), star: /⭐|:star:/u.test(line) });
   }
   return out;
 }

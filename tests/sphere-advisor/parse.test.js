@@ -43,15 +43,17 @@ describe("parseWishlist", () => {
     assert.deepEqual(
       parseWishlist("Satoru Gojo ✅ ⭐\nRoronoa Zoro\n+\\L.L./+\nNaruto Uzumaki ✅"),
       [
-        { name: "Satoru Gojo", mine: true },
-        { name: "Roronoa Zoro", mine: false },
-        { name: "+\\L.L./+", mine: false },
-        { name: "Naruto Uzumaki", mine: true },
+        { name: "Satoru Gojo", mine: true, star: true },
+        { name: "Roronoa Zoro", mine: false, star: false },
+        { name: "+\\L.L./+", mine: false, star: false },
+        { name: "Naruto Uzumaki", mine: true, star: false },
       ],
     );
   });
 
   it("unescapes names pasted as markdown", () => {
-    assert.deepEqual(parseWishlist("**+\\\\L.L./+** ✅"), [{ name: "+\\L.L./+", mine: true }]);
+    assert.deepEqual(parseWishlist("**+\\\\L.L./+** ✅"), [
+      { name: "+\\L.L./+", mine: true, star: false },
+    ]);
   });
 });
