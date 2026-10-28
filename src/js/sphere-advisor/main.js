@@ -27,7 +27,7 @@ function days(d) {
 }
 
 byId("shop-levels").innerHTML = ALL_PERKS.map(
-  (p) => `<label>shop ${p}<input type="number" min="0" max="10" id="shop${p}" /></label>`,
+  (p) => `<label>shop perk ${p}<input type="number" min="0" max="10" id="shop${p}" /></label>`,
 ).join("");
 
 function save() {
@@ -110,19 +110,48 @@ function stepLine(group) {
   const cost = `<span class="muted">· ${fmt(group.reduce((sum, s) => sum + s.cost, 0))} spheres</span>`;
   if (first.kind === "shop") {
     const times = n > 1 ? ` ${n} times` : "";
-    return `<code>$shop</code> → click <b>shop ${first.perk}</b>${times} (to level ${group.at(-1).level}) ${cost}`;
+    return `Send <code>$shop</code>, then click <b>shop perk ${first.perk}</b>${times} (to level ${group.at(-1).level}) ${cost}`;
   }
   if (isUnnamed(first.name)) {
     const who = `${n} more character${n > 1 ? "s" : ""}`;
-    return `<b>Perk 10 on ${who}</b> without it: <code>$op</code>, pick one, click <b>perk 10</b> ${cost}`;
+    return `<b>Ouroperk 10 on ${who}</b> without it: send <code>$op</code>, pick one in the list, then click <b>ouroperk 10</b> ${cost}`;
   }
-  const full = first.item.kind === "full" ? ' <span class="muted">(full upgrade)</span>' : "";
-  const last = group.at(-1).level;
-  const what =
-    first.perk >= 6
-      ? `click <b>perk ${first.perk}</b>`
-      : `click <b>perk ${first.perk}</b> ${n} time${n > 1 ? "s" : ""} (level ${last - n} → ${last >= LOW_LEVEL_COSTS.length ? "MAX" : last})`;
-  return `<code>$opp ${escapeHtml(first.name)}</code> → ${what}${full} ${cost}`;
+  return `Send <code>$opp ${escapeHtml(first.name)}</code>, then click ${clicks(group)} ${cost}`;
+}
+
+// "ouroperk 9", "ouroperk 5 5 times (level 0 → MAX)", ... for one character's clicks
+function clicks(steps) {
+  const parts = [];
+  // a full upgrade takes levels of several perks in turn; one entry per perk reads better
+  for (const step of steps) {
+    const same = parts.find((part) => part.perk === step.perk);
+    if (same) same.steps.push(step);
+    else parts.push({ perk: step.perk, steps: [step] });
+  }
+  const text = parts.map(({ perk, steps: done }) => {
+    const label = `<b>ouroperk ${perk}</b>`;
+    if (perk >= 6) return label;
+    const n = done.length;
+    const to = done.at(-1).level;
+    const end = to >= LOW_LEVEL_COSTS.length ? "MAX" : to;
+    return `${label}${n > 1 ? ` ${n} times` : ""} (level ${to - n} → ${end})`;
+  });
+  const full = steps.some((step) => step.item.kind === "full")
+    ? ' <span class="muted">(full upgrade)</span>'
+    : "";
+  return (text.length > 1 ? `${text.slice(0, -1).join(", ")} and ${text.at(-1)}` : text[0]) + full;
+}
+
+// One line per character: every click on it in a row needs a single $opp
+function lines(steps) {
+  const out = [];
+  for (const group of groupSteps(steps)) {
+    const prev = out.at(-1)?.[0];
+    const named = group[0].kind === "op" && !isUnnamed(group[0].name);
+    if (named && prev?.kind === "op" && prev.name === group[0].name) out.at(-1).push(...group);
+    else out.push([...group]);
+  }
+  return out;
 }
 
 function renderResult({ state, balance, rate }) {
@@ -131,25 +160,31 @@ function renderResult({ state, balance, rate }) {
   if (steps.length) {
     const count = `${steps.length} upgrade${steps.length > 1 ? "s" : ""}`;
     html += `<div class="summary">You can buy <b>${count}</b> now for <b>${fmt(balance - left)}</b> spheres. In this order:</div>`;
-    html += `<ol class="buys">${groupSteps(steps)
+    html += `<ol class="buys">${lines(steps)
       .map((g) => `<li>${stepLine(g)}</li>`)
       .join("")}</ol>`;
     html += `<p class="muted">Mudae shows no confirmation: the button changes price or says MAX. Paste a fresh <code>$mmsz=z!</code> and <code>$shop</code> afterwards to check.</p>`;
   }
   if (next) {
     let what;
+    let how;
     if (next.item.kind === "shop") {
-      what = `shop ${next.item.perk} level ${(sim.shop[next.item.perk] || 0) + 1}`;
+      what = `shop perk ${next.item.perk} level ${(sim.shop[next.item.perk] || 0) + 1}`;
+      how = `send <code>$shop</code>, then click <b>shop perk ${next.item.perk}</b>`;
     } else {
       const [name, perk] = next.target;
       const level = perk < 6 ? ` level ${sim.level(name, perk) + 1}` : "";
       const who = isUnnamed(name) ? "another character" : escapeHtml(name);
       const full = next.item.kind === "full" ? " (full upgrade)" : "";
-      what = `perk ${perk}${level} on ${who}${full}`;
+      what = `ouroperk ${perk}${level} on ${who}${full}`;
+      how = isUnnamed(name)
+        ? `send <code>$op</code>, pick a character without it, then click <b>ouroperk ${perk}</b>`
+        : `send <code>$opp ${escapeHtml(name)}</code>, then click <b>ouroperk ${perk}</b>`;
     }
     const short = next.cost - left;
     const eta = rate ? ` · ${days(short / rate)}` : "";
     html += `<div class="save">${steps.length ? "Then save up" : "Save up"} for <b>${what}</b>: ${fmt(next.cost)} spheres.
+      <div>When you have it: ${how}.</div>
       <div class="muted">${fmt(left)} / ${fmt(next.cost)} · ${fmt(short)} to go${eta}</div>
       <div class="bar"><i style="width:${Math.min(100, (left / next.cost) * 100)}%"></i></div></div>`;
   } else {
@@ -167,9 +202,9 @@ function renderResult({ state, balance, rate }) {
     <div class="muted">${reached} of ${PLAN.length} plan steps done</div>
     <div class="bar"><i style="width:${(reached / PLAN.length) * 100}%"></i></div>
     <p class="muted">${fmt(now)} spheres for everything you can buy with the characters you own now${eta}.
-    ${total > now ? `${fmt(total - now)} more as you claim wishlist characters (perk 9 and full upgrades go up to 17 of them).` : ""}</p>`;
+    ${total > now ? `${fmt(total - now)} more as you claim wishlist characters (ouroperk 9 and full upgrades go up to 17 of them).` : ""}</p>`;
   if (!byId("owned").value) {
-    html += `<p class="muted">Enter how many characters you own (step 4) so perk 10 counts them all.</p>`;
+    html += `<p class="muted">Enter how many characters you own (step 4) so ouroperk 10 counts them all.</p>`;
   }
   byId("result").innerHTML = html;
 }

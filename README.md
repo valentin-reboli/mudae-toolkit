@@ -22,11 +22,12 @@ move the mouse or press a key.
 ### Sphere Advisor
 
 Tells you which sphere upgrades to buy next, following the upgrade chart (all four columns: Easy,
-Medium, Hard and Expert). Perk 9 and the perk 5, perk 8 and full upgrades go on the wishlist
-characters you own, in wishlist order; perk 10 goes on any character.
+Medium, Hard and Expert). Ouroperks (`$op`) 9, 5 and 8 and full upgrades go on the wishlist
+characters you own, in wishlist order; ouroperk 10 goes on any character. Shop perks (`$shop`) apply
+to all characters.
 
 1. Send `$mmsz=z!`, Mudae will DM you the characters with spheres in them; paste the whole DM
-2. Send `$shop` and paste the reply (or type the 10 levels)
+2. Send `$shop` and paste the reply (or type the 10 shop perk levels)
 3. Send `$wls` and paste it, the ✅ lines are the wishlist characters you own
 4. Enter your spheres and how many characters you own
 
