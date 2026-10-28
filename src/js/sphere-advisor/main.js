@@ -43,7 +43,7 @@ byId("paths").innerHTML = PATHS.map(
       (_, j) => `<i class="${j <= i ? "on" : ""}"></i>`,
     ).join("")}</span>
     <span class="path-farm">${p.farm}</span>
-    <span class="path-label">Requirements</span>
+    <span class="path-label">Select if:</span>
     <ul class="path-reqs">${p.requires.map((r) => `<li>${r}</li>`).join("")}</ul>
     <span class="path-status"></span>
   </label>`,

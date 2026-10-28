@@ -5,7 +5,7 @@ export const PATHS = [
     id: "easy",
     name: "Easy",
     farm: "Ouroperk 10",
-    requires: ["A bunch of characters that you will not trade and not divorce, preferably 100+."],
+    requires: ["You have a bunch of characters you won't trade or divorce, preferably 100+."],
     notes: [],
   },
   {
@@ -23,7 +23,7 @@ export const PATHS = [
     name: "Hard",
     farm: "Ouroperk 9 click farm",
     requires: [
-      "10+ characters that you can for sure roll every single day, and will not trade or divorce. These will probably be starwishes.",
+      "You have 10+ characters you can for sure roll every single day and won't trade or divorce. These will probably be starwishes.",
     ],
     notes: [
       "This farm is by far the best daily value investment to start. Getting your first 10 characters up with ouroperk 9 is top priority.",
@@ -35,8 +35,8 @@ export const PATHS = [
     name: "Expert",
     farm: "Ouroperk 5 + 8 farm",
     requires: [
-      "10+ characters with 10+ keys each, that you can for sure roll every single day, and will not trade or divorce. These will probably be starwishes.",
-      "A high enough <code>$kt</code> level and/or extra react power resets to click 360%+ power worth of kakera reacts every day, without giving up chaos kakera or other high value kakera reacts.",
+      "You have 10+ characters with 10+ keys each that you can for sure roll every single day and won't trade or divorce. These will probably be starwishes.",
+      "Your <code>$kt</code> level and/or extra react power resets let you click 360%+ power worth of kakera reacts every day, without giving up chaos kakera or other high value kakera reacts.",
     ],
     notes: [
       "Ouroperk 8 (the first spawn of the day has half price reacts and four guaranteed kakera reacts) works together with ouroperk 5 (spheres on kakera clicks), so the chart treats them as one farm.",
