@@ -167,7 +167,7 @@ function stepLine(group) {
   }
   if (isUnnamed(first.name)) {
     const who = `${n} more character${n > 1 ? "s" : ""}`;
-    return `<b>Ouroperk 10 on ${who}</b> without it: send <code>$op</code>, pick one in the list, then click <b>ouroperk 10</b> ${cost}`;
+    return `<b>Ouroperk 10 on ${who}</b> without it: send <code>$opz-10z+</code> (it lists your characters without ouroperk 10), pick one, then click <b>ouroperk 10</b> ${cost}`;
   }
   return `Send <code>$opp ${escapeHtml(first.name)}</code>, then click ${clicks(group)} ${cost}`;
 }
@@ -231,7 +231,7 @@ function renderResult({ state, balance, rate }) {
       const full = next.item.kind === "full" ? " (full upgrade)" : "";
       what = `ouroperk ${perk}${level} on ${who}${full}`;
       how = isUnnamed(name)
-        ? `send <code>$op</code>, pick a character without it, then click <b>ouroperk ${perk}</b>`
+        ? `send <code>$opz-10z+</code> (it lists your characters without ouroperk 10), pick one, then click <b>ouroperk ${perk}</b>`
         : `send <code>$opp ${escapeHtml(name)}</code>, then click <b>ouroperk ${perk}</b>`;
     }
     const short = next.cost - left;
