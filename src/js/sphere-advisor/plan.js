@@ -39,9 +39,10 @@ export function parseItem(text) {
 export const PLAN = DEFAULT_PLAN.map(parseItem);
 
 export function describe(item) {
-  if (item.kind === "full") return `full upgrade on ${item.target} wishlist characters`;
-  if (item.kind === "shop") return `shop perk ${item.perk} level ${item.target}`;
-  return `ouroperk ${item.perk} on ${item.target} ${item.perk === 10 ? "" : "wishlist "}characters`;
+  if (item.kind === "full") return `full upgrade on ${item.target} owned wishlist characters`;
+  if (item.kind === "shop") return `shop perk ${item.perk} up to level ${item.target}`;
+  const who = item.perk === 10 ? "of your characters" : "owned wishlist characters";
+  return `ouroperk ${item.perk} on ${item.target} ${who}`;
 }
 
 export const opCost = (perk, level = 0) =>
