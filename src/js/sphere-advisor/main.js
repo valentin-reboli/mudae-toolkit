@@ -5,6 +5,7 @@ import {
   DIFFICULTIES,
   LOW_LEVEL_COSTS,
   SphereState,
+  dailyGain,
   describe,
   groupSteps,
   isUnnamed,
@@ -53,8 +54,9 @@ byId("paths").innerHTML = PATHS.map(
 const WL_HINTS = {
   easy: "Not needed on the Easy path: ouroperk 10 goes on any character you own.",
   medium: "Not needed on the Medium path: ouroperk 10 goes on any character you own.",
-  hard: "Owned wishlist characters get ouroperk 9.",
-  expert: "Owned wishlist characters get ouroperks 9, 5 and 8, and later they get full upgrades.",
+  hard: "Owned wishlist characters get ouroperk 9, starwishes (⭐) first.",
+  expert:
+    "Owned wishlist characters get ouroperks 9, 5 and 8, starwishes (⭐) first, and later they get full upgrades.",
 };
 
 function showPath() {
@@ -291,7 +293,9 @@ function renderPlan(state) {
       } else if (state) {
         status = `${state.count(item)} of ${item.target} done`;
       }
-      return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
+      const gain = dailyGain(item);
+      const daily = gain === null ? "" : `+${fmt(gain)}/day`;
+      return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="gain">${daily}</span><span class="status">${status}</span></li>`;
     })
     .join("");
   // bring the next step into view when it changes, without moving the page
