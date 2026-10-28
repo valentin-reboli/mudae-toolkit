@@ -5,7 +5,6 @@ import {
   DIFFICULTIES,
   LOW_LEVEL_COSTS,
   SphereState,
-  dailyGain,
   describe,
   groupSteps,
   isUnnamed,
@@ -293,9 +292,7 @@ function renderPlan(state) {
       } else if (state) {
         status = `${state.count(item)} of ${item.target} done`;
       }
-      const gain = dailyGain(item);
-      const daily = gain === null ? "" : `+${fmt(gain)}/day`;
-      return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="gain">${daily}</span><span class="status">${status}</span></li>`;
+      return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
     })
     .join("");
   // bring the next step into view when it changes, without moving the page

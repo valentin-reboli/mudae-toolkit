@@ -261,17 +261,6 @@ code {
   color: var(--text-muted);
 }
 
-.plan .gain {
-  flex: none;
-  color: var(--good);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-
-.plan .reached .gain {
-  color: var(--text-muted);
-}
-
 .plan .status {
   flex: none;
   min-width: 84px;

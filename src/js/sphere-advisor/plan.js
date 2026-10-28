@@ -39,69 +39,6 @@ export function parseItem(text) {
 
 export const PLAN = DEFAULT_PLAN.map(parseItem);
 
-// "+Base Daily" of each upgrade chart row: spheres a day it adds. A row with two plan items
-// splits its gain by the chart's cost of each ([item, cost] pairs).
-const CHART_ROWS = [
-  [712, ["op9 x10"]],
-  [145, ["shop2 lvl1"]],
-  [2340, ["op10 x100"]],
-  [96, ["shop9 lvl1", 4000], ["op9 x11", 1000]],
-  [204, ["shop2 lvl2"]],
-  [457, ["op5 x6", 30000], ["op8 x6", 6000]],
-  [60, ["shop5 lvl1"]],
-  [343, ["op5 x10", 20000], ["op8 x10", 4000]],
-  [162, ["op5 x11", 5000], ["op8 x11", 1000]],
-  [110, ["shop5 lvl2"]],
-  [100, ["shop9 lvl2", 8000], ["op9 x12", 1000]],
-  [172, ["op5 x12", 5000], ["op8 x12", 1000]],
-  [125, ["shop2 lvl3"]],
-  [120, ["shop5 lvl3"]],
-  [970, ["op10 x200"]],
-  [105, ["shop9 lvl3", 12000], ["op9 x13", 1000]],
-  [182, ["op5 x13", 5000], ["op8 x13", 1000]],
-  [2090, ["full x10"]],
-  [673, ["full x13"]],
-  [157, ["shop5 lvl4"]],
-  [141, ["shop2 lvl4"]],
-  [116, ["shop9 lvl4", 16000], ["op9 x14", 1000]],
-  [238, ["full x14"]],
-  [168, ["shop5 lvl5"]],
-  [33, ["shop10 lvl1"]],
-  [142, ["shop2 lvl5"]],
-  [168, ["shop5 lvl6"]],
-  [168, ["shop5 lvl7"]],
-  [142, ["shop2 lvl6"]],
-  [570, ["op10 x300"]],
-  [113, ["shop9 lvl5", 20000], ["op9 x15", 1000]],
-  [277, ["full x15"]],
-  [179, ["shop5 lvl8"]],
-  [143, ["shop2 lvl7"]],
-  [118, ["shop9 lvl6", 24000], ["op9 x16", 1000]],
-  [291, ["full x16"]],
-  [194, ["shop5 lvl9"]],
-  [122, ["shop9 lvl7", 28000], ["op9 x17", 1000]],
-  [302, ["full x17"]],
-  [184, ["shop5 lvl10"]],
-  [40, ["shop10 lvl2"]],
-]; // prettier-ignore
-
-const GAINS = new Map();
-for (const [gain, ...items] of CHART_ROWS) {
-  const total = items.reduce((sum, [, cost = 1]) => sum + cost, 0);
-  for (const [text, cost = 1] of items) GAINS.set(text, (gain * cost) / total);
-}
-
-// Spheres a day the chart says this step adds, or null for steps past the chart (shop 9 above 7)
-export function dailyGain(item) {
-  const key =
-    item.kind === "shop"
-      ? `shop${item.perk} lvl${item.target}`
-      : item.kind === "full"
-        ? `full x${item.target}`
-        : `op${item.perk} x${item.target}`;
-  return GAINS.get(key) ?? null;
-}
-
 // The chart's columns, left to right. A path includes its own column and every one to its left.
 export const DIFFICULTIES = ["easy", "medium", "hard", "expert"];
 
