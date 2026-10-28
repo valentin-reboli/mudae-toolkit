@@ -294,6 +294,30 @@ function renderPlan(state) {
       return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
     })
     .join("");
+  // bring the next step into view when it changes, without moving the page
+  const key = `${path}:${current ? plan.indexOf(current) : -1}`;
+  if (key !== lastShown) {
+    lastShown = key;
+    const box = byId("plan-scroll");
+    const li = byId("plan").querySelector(".current");
+    box.scrollTop = li ? li.offsetTop - box.clientHeight / 3 : 0;
+  }
+  updateScrollCue();
+}
+
+let lastShown = "";
+
+// fades and a "scroll" line while there are steps out of view
+function updateScrollCue() {
+  const box = byId("plan-scroll");
+  const above = box.scrollTop > 2;
+  const below = box.scrollTop + box.clientHeight < box.scrollHeight - 2;
+  box.classList.toggle("more-above", above);
+  box.classList.toggle("more-below", below);
+  byId("plan-more").hidden = !(above || below);
+  byId("plan-more").textContent = below
+    ? `↓ Scroll for more · ${plan.length} steps in all`
+    : `↑ Scroll up for earlier steps · ${plan.length} steps in all`;
 }
 
 function render() {
@@ -311,6 +335,8 @@ function render() {
 
 load();
 showPath();
+byId("plan-scroll").addEventListener("scroll", updateScrollCue, { passive: true });
+window.addEventListener("resize", updateScrollCue);
 byId("paths").addEventListener("change", (event) => {
   path = event.target.value;
   plan = planFor(path);
