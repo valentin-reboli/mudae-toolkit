@@ -209,11 +209,12 @@ function renderResult({ state, balance, rate }) {
   byId("result").innerHTML = html;
 }
 
-// One plan step, short: what to upgrade and how far
+// One plan step: what to upgrade, and on how many characters or up to which level
 function stepParts(item) {
-  if (item.kind === "shop") return [`Shop perk ${item.perk}`, `level ${item.target}`];
+  if (item.kind === "shop") return [`Shop perk ${item.perk}`, `up to level ${item.target}`];
   const what = item.kind === "full" ? "Full upgrade" : `Ouroperk ${item.perk}`;
-  return [what, `on ${item.target}`];
+  const who = item.perk === 10 ? "of your characters" : "owned wishlist characters";
+  return [what, `on ${item.target} ${who}`];
 }
 
 function renderPlan(state) {
@@ -230,9 +231,11 @@ function renderPlan(state) {
       status = '<span class="pill">next</span>';
     } else if (state?.waiting(item)) {
       cls = "waiting";
-      status = `<span title="Waits until you claim more characters">${state.count(item)}/${item.target} · waits</span>`;
-    } else if (state && item.kind !== "shop") {
-      status = `${state.count(item)}/${item.target}`;
+      status = `<span title="Waits until you claim more characters">${state.count(item)} of ${item.target} · waits</span>`;
+    } else if (state && item.kind === "shop") {
+      status = `now level ${state.shop[item.perk] || 0}`;
+    } else if (state) {
+      status = `${state.count(item)} of ${item.target} done`;
     }
     return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
   }).join("");

@@ -192,14 +192,6 @@ code {
   padding: 0;
   list-style: none;
   font-size: 13px;
-  columns: 2;
-  column-gap: 20px;
-}
-
-@media (max-width: 520px) {
-  .plan {
-    columns: 1;
-  }
 }
 
 .plan li {
@@ -208,7 +200,6 @@ code {
   align-items: baseline;
   padding: 3px 6px;
   border-radius: var(--radius-sm);
-  break-inside: avoid;
 }
 
 .plan .n {
