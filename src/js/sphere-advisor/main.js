@@ -27,7 +27,7 @@ function days(d) {
 }
 
 byId("shop-levels").innerHTML = ALL_PERKS.map(
-  (p) => `<label>shop ${p}<input type="number" min="0" max="10" id="shop${p}" /></label>`,
+  (p) => `<label>shop perk ${p}<input type="number" min="0" max="10" id="shop${p}" /></label>`,
 ).join("");
 
 function save() {
@@ -110,18 +110,18 @@ function stepLine(group) {
   const cost = `<span class="muted">· ${fmt(group.reduce((sum, s) => sum + s.cost, 0))} spheres</span>`;
   if (first.kind === "shop") {
     const times = n > 1 ? ` ${n} times` : "";
-    return `<code>$shop</code> → click <b>shop ${first.perk}</b>${times} (to level ${group.at(-1).level}) ${cost}`;
+    return `<code>$shop</code> → click <b>shop perk ${first.perk}</b>${times} (to level ${group.at(-1).level}) ${cost}`;
   }
   if (isUnnamed(first.name)) {
     const who = `${n} more character${n > 1 ? "s" : ""}`;
-    return `<b>Perk 10 on ${who}</b> without it: <code>$op</code>, pick one, click <b>perk 10</b> ${cost}`;
+    return `<b>Ouroperk 10 on ${who}</b> without it: <code>$op</code>, pick one, click <b>ouroperk 10</b> ${cost}`;
   }
   const full = first.item.kind === "full" ? ' <span class="muted">(full upgrade)</span>' : "";
   const last = group.at(-1).level;
   const what =
     first.perk >= 6
-      ? `click <b>perk ${first.perk}</b>`
-      : `click <b>perk ${first.perk}</b> ${n} time${n > 1 ? "s" : ""} (level ${last - n} → ${last >= LOW_LEVEL_COSTS.length ? "MAX" : last})`;
+      ? `click <b>ouroperk ${first.perk}</b>`
+      : `click <b>ouroperk ${first.perk}</b> ${n} time${n > 1 ? "s" : ""} (level ${last - n} → ${last >= LOW_LEVEL_COSTS.length ? "MAX" : last})`;
   return `<code>$opp ${escapeHtml(first.name)}</code> → ${what}${full} ${cost}`;
 }
 
@@ -139,13 +139,13 @@ function renderResult({ state, balance, rate }) {
   if (next) {
     let what;
     if (next.item.kind === "shop") {
-      what = `shop ${next.item.perk} level ${(sim.shop[next.item.perk] || 0) + 1}`;
+      what = `shop perk ${next.item.perk} level ${(sim.shop[next.item.perk] || 0) + 1}`;
     } else {
       const [name, perk] = next.target;
       const level = perk < 6 ? ` level ${sim.level(name, perk) + 1}` : "";
       const who = isUnnamed(name) ? "another character" : escapeHtml(name);
       const full = next.item.kind === "full" ? " (full upgrade)" : "";
-      what = `perk ${perk}${level} on ${who}${full}`;
+      what = `ouroperk ${perk}${level} on ${who}${full}`;
     }
     const short = next.cost - left;
     const eta = rate ? ` · ${days(short / rate)}` : "";
@@ -167,9 +167,9 @@ function renderResult({ state, balance, rate }) {
     <div class="muted">${reached} of ${PLAN.length} plan steps done</div>
     <div class="bar"><i style="width:${(reached / PLAN.length) * 100}%"></i></div>
     <p class="muted">${fmt(now)} spheres for everything you can buy with the characters you own now${eta}.
-    ${total > now ? `${fmt(total - now)} more as you claim wishlist characters (perk 9 and full upgrades go up to 17 of them).` : ""}</p>`;
+    ${total > now ? `${fmt(total - now)} more as you claim wishlist characters (ouroperk 9 and full upgrades go up to 17 of them).` : ""}</p>`;
   if (!byId("owned").value) {
-    html += `<p class="muted">Enter how many characters you own (step 4) so perk 10 counts them all.</p>`;
+    html += `<p class="muted">Enter how many characters you own (step 4) so ouroperk 10 counts them all.</p>`;
   }
   byId("result").innerHTML = html;
 }
