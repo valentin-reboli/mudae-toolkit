@@ -17,19 +17,6 @@ import { readSetting, writeSetting } from "../utils/storage.js";
 const INPUT_KEY = "sphere-advisor:inputs";
 const FIELDS = ["mmsz", "shop", "wl", "balance", "owned", "rate"];
 const SHOP_FIELDS = ALL_PERKS.map((p) => `shop${p}`);
-const PERK_NAMES = {
-  1: "wishlist spawn",
-  2: "kakera value",
-  3: "+1 kakera button",
-  4: "keys",
-  5: "spheres per kakera",
-  6: "wish spawn",
-  7: "chaos kakera",
-  8: "4 kakera buttons",
-  9: "sphere button",
-  10: "first $oh",
-};
-
 const fmt = (n) => Math.round(n).toLocaleString("en-US");
 
 function days(d) {
@@ -69,7 +56,12 @@ function readInputs() {
   const invested = parseInvested(mmszText);
   const count = Object.keys(invested).length;
   if (!mmszText.trim()) setStatus("mmsz-status", "", true);
-  else if (count) setStatus("mmsz-status", `✓ ${count} characters with spheres in them`, true);
+  else if (count)
+    setStatus(
+      "mmsz-status",
+      `✓ ${count} character${count === 1 ? "" : "s"} with spheres in them`,
+      true,
+    );
   else if (/harem/i.test(mmszText)) setStatus("mmsz-status", "✓ no characters with spheres", true);
   else setStatus("mmsz-status", "No character line found. Paste the DM as it is.", false);
 
@@ -98,11 +90,10 @@ function readInputs() {
 
   const wlText = byId("wl").value;
   const wishlist = parseWishlist(wlText);
-  const mine = wishlist.filter((w) => w.mine).map((w) => w.name);
+  const owned = wishlist.some((w) => w.mine);
   if (!wlText.trim()) setStatus("wl-status", "", true);
-  else if (mine.length) {
-    setStatus("wl-status", `✓ ${wishlist.length} wishes, you own ${mine.join(", ")}`, true);
-  } else setStatus("wl-status", `${wishlist.length} wishes, none marked ✅`, false);
+  else if (owned) setStatus("wl-status", `✓ ${wishlist.length} wishes read`, true);
+  else setStatus("wl-status", `${wishlist.length} wishes read, none marked ✅`, false);
 
   const started = mmszText.trim() || shopText.trim() || byId("shop1").value;
   return {
@@ -183,31 +174,6 @@ function renderResult({ state, balance, rate }) {
   byId("result").innerHTML = html;
 }
 
-function renderCharacters(state) {
-  if (!state.wl.length) {
-    byId("characters").innerHTML = `<h2>Wishlist characters</h2>
-      <p class="muted">Paste <code>$wl</code> (step 3) to see the characters that get perks 9, 5, 8 and full upgrades.</p>`;
-    return;
-  }
-  const cell = (name, p) => {
-    if (state.has(name, p)) return '<td class="p ok">✓</td>';
-    const level = state.level(name, p);
-    return level ? `<td class="p part">${level}</td>` : '<td class="p no">·</td>';
-  };
-  const head = ALL_PERKS.map((p) => `<th class="p" title="${PERK_NAMES[p]}">${p}</th>`).join("");
-  const rows = state.wl
-    .map((name, i) => {
-      const cells = ALL_PERKS.map((p) => cell(name, p)).join("");
-      return `<tr><td>${i + 1}. ${escapeHtml(name)}</td>${cells}</tr>`;
-    })
-    .join("");
-  const perk10 = state.owned.filter((n) => state.has(n, 10)).length;
-  byId("characters").innerHTML = `<h2>Wishlist characters</h2>
-    <p class="hint">In upgrade order. ✓ done; a number is the level of a perk 1-5 not maxed yet.</p>
-    <div style="overflow-x:auto"><table class="perks"><tr><th>Character</th>${head}</tr>${rows}</table></div>
-    <p class="muted">Perk 10 on ${perk10} of ${state.owned.length} characters you own.</p>`;
-}
-
 function renderPlan(state) {
   const current = state ? nextItem(state) : null;
   byId("plan").innerHTML = PLAN.map((item) => {
@@ -228,12 +194,10 @@ function render() {
   if (!inputs.started) {
     byId("result").innerHTML =
       '<h2>What to buy</h2><p class="muted">Paste at least <code>$mmsz=z!</code> and <code>$shop</code> to start.</p>';
-    byId("characters").innerHTML = "";
     renderPlan(null);
     return;
   }
   renderResult(inputs);
-  renderCharacters(inputs.state);
   renderPlan(inputs.state);
 }
 

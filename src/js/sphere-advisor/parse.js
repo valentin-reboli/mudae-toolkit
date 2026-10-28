@@ -34,7 +34,7 @@ export function parseShop(text) {
   return { levels, balance: balance ? +balance[1].replace(/,/g, "") : null };
 }
 
-// $wl: one wish per line, ✅ on the ones you own
+// $wls: one wish per line, ✅ on the ones you own
 export function parseWishlist(text) {
   const out = [];
   for (const raw of (text || "").split(/\r?\n/)) {
