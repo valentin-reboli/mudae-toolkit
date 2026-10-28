@@ -1,5 +1,6 @@
 // The sphere upgrade plan, the same one the mudae-auto-roller alts follow
 // (DEFAULT_PLAN in mudae_bot/spheres.py): the upgrade chart, all four columns, top to bottom.
+// planFor() keeps the columns up to a chosen difficulty.
 
 export const DEFAULT_PLAN = [
   "op9 x10", "shop2 lvl1", "op10 x100", "shop9 lvl1", "op9 x11", "shop2 lvl2",
@@ -37,6 +38,24 @@ export function parseItem(text) {
 }
 
 export const PLAN = DEFAULT_PLAN.map(parseItem);
+
+// The chart's columns, left to right. A path includes its own column and every one to its left.
+export const DIFFICULTIES = ["easy", "medium", "hard", "expert"];
+
+// Which column a plan item belongs to: perk 10 (easy), the shop 2 megasphere (medium),
+// the perk 9 click farm (hard), and the perk 5+8 farm with full upgrades and shop 5/10 (expert)
+export function difficultyOf(item) {
+  if (item.kind === "op" && item.perk === 10) return "easy";
+  if (item.kind === "shop" && item.perk === 2) return "medium";
+  if (item.perk === 9) return "hard";
+  return "expert";
+}
+
+export function planFor(difficulty) {
+  const max = DIFFICULTIES.indexOf(difficulty);
+  if (max < 0) throw new Error(`unknown difficulty: ${difficulty}`);
+  return PLAN.filter((item) => DIFFICULTIES.indexOf(difficultyOf(item)) <= max);
+}
 
 export function describe(item) {
   if (item.kind === "full") return `full upgrade on ${item.target} owned wishlist characters`;
@@ -142,8 +161,8 @@ export class SphereState {
   }
 }
 
-export function nextItem(state) {
-  return PLAN.find((item) => !state.reached(item) && !state.waiting(item)) ?? null;
+export function nextItem(state, plan = PLAN) {
+  return plan.find((item) => !state.reached(item) && !state.waiting(item)) ?? null;
 }
 
 export function itemCost(item, state) {
@@ -170,12 +189,12 @@ export function buy(item, state) {
 }
 
 // Every click affordable with this balance, in plan order, and the one to save up for
-export function shoppingList(state, balance) {
+export function shoppingList(state, balance, plan = PLAN) {
   const sim = state.clone();
   let left = balance;
   const steps = [];
   for (let i = 0; i < 5000; i++) {
-    const item = nextItem(sim);
+    const item = nextItem(sim, plan);
     if (!item) return { steps, left, next: null, sim };
     const cost = itemCost(item, sim);
     if (cost > left) {
@@ -190,7 +209,7 @@ export function shoppingList(state, balance) {
 
 // Spheres still needed for the whole plan. reachable: only with the characters owned now;
 // otherwise characters claimed later count as fresh ones.
-export function remainingCost(state, reachable = false) {
+export function remainingCost(state, reachable = false, plan = PLAN) {
   let total = 0;
   const shop = { ...state.shop };
   const done = Object.fromEntries(Object.entries(state.done).map(([k, v]) => [k, new Set(v)]));
@@ -206,7 +225,7 @@ export function remainingCost(state, reachable = false) {
     have.add(perk);
     return costToMax(perk, state.level(name, perk));
   };
-  for (const item of PLAN) {
+  for (const item of plan) {
     if (item.kind === "shop") {
       const level = shop[item.perk] || 0;
       for (let lv = level + 1; lv <= item.target; lv++) total += shopCost(lv);

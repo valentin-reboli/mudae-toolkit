@@ -21,6 +21,16 @@
         Fill in the commands and get the upgrades based on the community sphere upgrade path
       </p>
 
+      <div class="card path-card">
+        <h2>Choose your path</h2>
+        <p class="hint">
+          Pick the hardest path you meet the requirements for. You follow its column of the upgrade
+          chart and every column to its left.
+        </p>
+        <div class="paths" id="paths" role="radiogroup" aria-label="Path"></div>
+        <details class="path-notes" id="path-notes"></details>
+      </div>
+
       <div class="columns">
         <section>
           <div class="card">
@@ -53,9 +63,7 @@
 
           <div class="card">
             <h2 class="step"><span class="num">3</span> Send <code>$wls</code></h2>
-            <p class="hint">
-              Owned wishlist characters get ouroperks 9, 5 and 8, and later they get full upgrades.
-            </p>
+            <p class="hint" id="wl-hint"></p>
             <textarea
               id="wl"
               spellcheck="false"
@@ -79,10 +87,10 @@
         <section>
           <div class="card" id="result"></div>
           <div class="card">
-            <h2>Upgrade plan</h2>
+            <h2>Upgrade plan <span class="path-tag" id="plan-path"></span></h2>
             <p class="hint">
-              Go in order from step 1. Steps marked "waits" need more owned wishlist characters
-              first, so skip them for now.
+              Go in order from step 1. Steps marked "waits" need more characters first, so skip them
+              for now.
             </p>
             <ol class="plan" id="plan"></ol>
           </div>
