@@ -35,13 +35,17 @@ let plan = planFor(path);
 byId("paths").innerHTML = PATHS.map(
   (p, i) => `<label class="path" data-path="${p.id}">
     <input type="radio" name="path" value="${p.id}" />
-    <span class="path-head"><b>${p.name}</b><span class="path-badge">✓ included</span><span class="path-level">${"●".repeat(i + 1)}${"○".repeat(PATHS.length - i - 1)}</span></span>
+    <span class="path-top">
+      <span class="path-name">${p.name}</span>
+      <span class="path-radio" aria-hidden="true"></span>
+    </span>
+    <span class="path-meter" aria-label="Difficulty ${i + 1} of ${PATHS.length}">${PATHS.map(
+      (_, j) => `<i class="${j <= i ? "on" : ""}"></i>`,
+    ).join("")}</span>
     <span class="path-farm">${p.farm}</span>
-    <span class="path-label">Requires</span>
-    <ul>${p.requires.map((r) => `<li>${r}</li>`).join("")}</ul>
-    <span class="path-includes">Follows ${PATHS.slice(0, i + 1)
-      .map((q) => q.name)
-      .join(" + ")}</span>
+    <span class="path-label">Select if:</span>
+    <ul class="path-reqs">${p.requires.map((r) => `<li>${r}</li>`).join("")}</ul>
+    <span class="path-status"></span>
   </label>`,
 ).join("");
 
@@ -60,12 +64,17 @@ function showPath() {
     el.classList.toggle("chosen", i === index);
     el.classList.toggle("included", i < index);
     el.querySelector("input").checked = i === index;
+    el.querySelector(".path-status").textContent =
+      i === index ? "Your path" : i < index ? "Included" : "Not included";
   }
+  byId("path-summary").innerHTML = `Your plan follows ${PATHS.slice(0, index + 1)
+    .map((q) => `<span class="chip">${q.name}</span>`)
+    .join('<span class="arrow">→</span>')}<span class="count">${plan.length} steps</span>`;
   byId("path-notes").hidden = !chosen.notes.length;
   byId("path-notes").innerHTML =
-    `<summary>More about the ${chosen.name} path</summary>${chosen.notes
+    `<summary>More about the ${chosen.name} path</summary><div class="notes-body">${chosen.notes
       .map((n) => `<p>${n}</p>`)
-      .join("")}`;
+      .join("")}</div>`;
   byId("wl-hint").textContent = WL_HINTS[path];
   byId("plan-path").textContent = `${chosen.name} path`;
 }
