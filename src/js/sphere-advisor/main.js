@@ -209,17 +209,32 @@ function renderResult({ state, balance, rate }) {
   byId("result").innerHTML = html;
 }
 
+// One plan step, short: what to upgrade and how far
+function stepParts(item) {
+  if (item.kind === "shop") return [`Shop perk ${item.perk}`, `level ${item.target}`];
+  const what = item.kind === "full" ? "Full upgrade" : `Ouroperk ${item.perk}`;
+  return [what, `on ${item.target}`];
+}
+
 function renderPlan(state) {
   const current = state ? nextItem(state) : null;
-  byId("plan").innerHTML = PLAN.map((item) => {
+  byId("plan").innerHTML = PLAN.map((item, i) => {
+    const [what, target] = stepParts(item);
     let cls = "";
-    if (state?.reached(item)) cls = "reached";
-    else if (item === current) cls = "current";
-    else if (state?.waiting(item)) cls = "waiting";
-    const mark = { reached: "✓ ", current: "▸ ", waiting: "… " }[cls] ?? "";
-    const have =
-      state && item.kind !== "shop" && cls !== "reached" ? ` (${state.count(item)})` : "";
-    return `<li class="${cls}">${mark}${describe(item)}${have}</li>`;
+    let status = "";
+    if (state?.reached(item)) {
+      cls = "reached";
+      status = "✓";
+    } else if (item === current) {
+      cls = "current";
+      status = '<span class="pill">next</span>';
+    } else if (state?.waiting(item)) {
+      cls = "waiting";
+      status = `<span title="Waits until you claim more characters">${state.count(item)}/${item.target} · waits</span>`;
+    } else if (state && item.kind !== "shop") {
+      status = `${state.count(item)}/${item.target}`;
+    }
+    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
   }).join("");
 }
 
