@@ -1,13 +1,15 @@
 import { parseInvested, parseShop, parseWishlist } from "./parse.js";
+import { PATHS } from "./paths.js";
 import {
   ALL_PERKS,
+  DIFFICULTIES,
   LOW_LEVEL_COSTS,
-  PLAN,
   SphereState,
   describe,
   groupSteps,
   isUnnamed,
   nextItem,
+  planFor,
   remainingCost,
   shoppingList,
 } from "./plan.js";
@@ -15,6 +17,7 @@ import { byId, escapeHtml } from "../utils/dom.js";
 import { readSetting, writeSetting } from "../utils/storage.js";
 
 const INPUT_KEY = "sphere-advisor:inputs";
+const PATH_KEY = "sphere-advisor:path";
 const FIELDS = ["mmsz", "shop", "wl", "balance", "owned", "rate"];
 const SHOP_FIELDS = ALL_PERKS.map((p) => `shop${p}`);
 const fmt = (n) => Math.round(n).toLocaleString("en-US");
@@ -24,6 +27,47 @@ function days(d) {
   if (d < 2) return "about 1 day";
   if (d < 60) return `about ${Math.round(d)} days`;
   return d < 730 ? `about ${Math.round(d / 30)} months` : `about ${(d / 365).toFixed(1)} years`;
+}
+
+let path = DIFFICULTIES.includes(readSetting(PATH_KEY, "")) ? readSetting(PATH_KEY, "") : "expert";
+let plan = planFor(path);
+
+byId("paths").innerHTML = PATHS.map(
+  (p, i) => `<label class="path" data-path="${p.id}">
+    <input type="radio" name="path" value="${p.id}" />
+    <span class="path-head"><b>${p.name}</b><span class="path-badge">✓ included</span><span class="path-level">${"●".repeat(i + 1)}${"○".repeat(PATHS.length - i - 1)}</span></span>
+    <span class="path-farm">${p.farm}</span>
+    <span class="path-label">Requires</span>
+    <ul>${p.requires.map((r) => `<li>${r}</li>`).join("")}</ul>
+    <span class="path-includes">Follows ${PATHS.slice(0, i + 1)
+      .map((q) => q.name)
+      .join(" + ")}</span>
+  </label>`,
+).join("");
+
+const WL_HINTS = {
+  easy: "Not needed on the Easy path: ouroperk 10 goes on any character you own.",
+  medium: "Not needed on the Medium path: ouroperk 10 goes on any character you own.",
+  hard: "Owned wishlist characters get ouroperk 9.",
+  expert: "Owned wishlist characters get ouroperks 9, 5 and 8, and later they get full upgrades.",
+};
+
+function showPath() {
+  const index = DIFFICULTIES.indexOf(path);
+  const chosen = PATHS[index];
+  for (const el of byId("paths").querySelectorAll(".path")) {
+    const i = DIFFICULTIES.indexOf(el.dataset.path);
+    el.classList.toggle("chosen", i === index);
+    el.classList.toggle("included", i < index);
+    el.querySelector("input").checked = i === index;
+  }
+  byId("path-notes").hidden = !chosen.notes.length;
+  byId("path-notes").innerHTML =
+    `<summary>More about the ${chosen.name} path</summary>${chosen.notes
+      .map((n) => `<p>${n}</p>`)
+      .join("")}`;
+  byId("wl-hint").textContent = WL_HINTS[path];
+  byId("plan-path").textContent = `${chosen.name} path`;
 }
 
 byId("shop-levels").innerHTML = ALL_PERKS.map(
@@ -155,7 +199,7 @@ function lines(steps) {
 }
 
 function renderResult({ state, balance, rate }) {
-  const { steps, left, next, sim } = shoppingList(state, balance);
+  const { steps, left, next, sim } = shoppingList(state, balance, plan);
   let html = "<h2>What to buy</h2>";
   if (steps.length) {
     const count = `${steps.length} upgrade${steps.length > 1 ? "s" : ""}`;
@@ -188,21 +232,21 @@ function renderResult({ state, balance, rate }) {
       <div class="muted">${fmt(left)} / ${fmt(next.cost)} · ${fmt(short)} to go${eta}</div>
       <div class="bar"><i style="width:${Math.min(100, (left / next.cost) * 100)}%"></i></div></div>`;
   } else {
-    const waiting = PLAN.find((item) => !sim.reached(item));
+    const waiting = plan.find((item) => !sim.reached(item));
     html += waiting
       ? `<div class="done">Everything you can buy is done. Next waits for more characters: <b>${describe(waiting)}</b>.</div>`
-      : `<div class="done">✅ The whole plan is done.</div>`;
+      : `<div class="done">✅ The whole ${PATHS[DIFFICULTIES.indexOf(path)].name} path is done.</div>`;
   }
 
-  const total = remainingCost(state);
-  const now = remainingCost(state, true);
-  const reached = PLAN.filter((item) => state.reached(item)).length;
+  const total = remainingCost(state, false, plan);
+  const now = remainingCost(state, true, plan);
+  const reached = plan.filter((item) => state.reached(item)).length;
   const eta = rate && now > balance ? ` (${days((now - balance) / rate)})` : "";
   html += `<h2 style="margin-top:18px">Progress</h2>
-    <div class="muted">${reached} of ${PLAN.length} plan steps done</div>
-    <div class="bar"><i style="width:${(reached / PLAN.length) * 100}%"></i></div>
+    <div class="muted">${reached} of ${plan.length} plan steps done</div>
+    <div class="bar"><i style="width:${(reached / plan.length) * 100}%"></i></div>
     <p class="muted">${fmt(now)} spheres for everything you can buy with the characters you own now${eta}.
-    ${total > now ? `${fmt(total - now)} more as you claim wishlist characters (ouroperk 9 and full upgrades go up to 17 of them).` : ""}</p>`;
+    ${total > now ? `${fmt(total - now)} more as you get more characters.` : ""}</p>`;
   if (!byId("owned").value) {
     html += `<p class="muted">Enter how many characters you own (step 4) so ouroperk 10 counts them all.</p>`;
   }
@@ -218,27 +262,29 @@ function stepParts(item) {
 }
 
 function renderPlan(state) {
-  const current = state ? nextItem(state) : null;
-  byId("plan").innerHTML = PLAN.map((item, i) => {
-    const [what, target] = stepParts(item);
-    let cls = "";
-    let status = "";
-    if (state?.reached(item)) {
-      cls = "reached";
-      status = "✓";
-    } else if (item === current) {
-      cls = "current";
-      status = '<span class="pill">next</span>';
-    } else if (state?.waiting(item)) {
-      cls = "waiting";
-      status = `<span title="Waits until you claim more characters">${state.count(item)} of ${item.target} · waits</span>`;
-    } else if (state && item.kind === "shop") {
-      status = `now level ${state.shop[item.perk] || 0}`;
-    } else if (state) {
-      status = `${state.count(item)} of ${item.target} done`;
-    }
-    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
-  }).join("");
+  const current = state ? nextItem(state, plan) : null;
+  byId("plan").innerHTML = plan
+    .map((item, i) => {
+      const [what, target] = stepParts(item);
+      let cls = "";
+      let status = "";
+      if (state?.reached(item)) {
+        cls = "reached";
+        status = "✓";
+      } else if (item === current) {
+        cls = "current";
+        status = '<span class="pill">next</span>';
+      } else if (state?.waiting(item)) {
+        cls = "waiting";
+        status = `<span title="Waits until you claim more characters">${state.count(item)} of ${item.target} · waits</span>`;
+      } else if (state && item.kind === "shop") {
+        status = `now level ${state.shop[item.perk] || 0}`;
+      } else if (state) {
+        status = `${state.count(item)} of ${item.target} done`;
+      }
+      return `<li class="${cls}"><span class="n">${i + 1}</span><span class="what">${what} <span class="target">${target}</span></span><span class="status">${status}</span></li>`;
+    })
+    .join("");
 }
 
 function render() {
@@ -255,6 +301,14 @@ function render() {
 }
 
 load();
+showPath();
+byId("paths").addEventListener("change", (event) => {
+  path = event.target.value;
+  plan = planFor(path);
+  writeSetting(PATH_KEY, path);
+  showPath();
+  render();
+});
 for (const field of [...FIELDS, ...SHOP_FIELDS]) byId(field).addEventListener("input", render);
 byId("clear").addEventListener("click", () => {
   for (const field of [...FIELDS, ...SHOP_FIELDS]) byId(field).value = "";

@@ -9,6 +9,7 @@ import {
   itemCost,
   nextItem,
   parseItem,
+  planFor,
   remainingCost,
   shoppingList,
 } from "../../src/js/sphere-advisor/plan.js";
@@ -59,6 +60,35 @@ describe("plan", () => {
     assert.deepEqual(state.nextBuy(full), ["A", 1]);
     state.levels.A[1] = 4;
     assert.deepEqual(state.nextBuy(full), ["A", 3]);
+  });
+});
+
+describe("planFor", () => {
+  const items = (difficulty) =>
+    planFor(difficulty).map((i) => `${i.kind}${i.perk || ""} ${i.target}`);
+
+  it("keeps the chosen column and every one to its left, in chart order", () => {
+    assert.deepEqual(items("easy"), ["op10 100", "op10 200", "op10 300"]);
+    assert.equal(planFor("medium").length, 10);
+    assert.ok(planFor("medium").every((i) => i.perk === 10 || i.perk === 2));
+    // the bot's plan before the Expert rows (EASY_TO_HARD_PLAN in mudae_bot/spheres.py)
+    assert.equal(planFor("hard").length, 28);
+    assert.deepEqual(items("hard").slice(0, 4), ["op9 10", "shop2 1", "op10 100", "shop9 1"]);
+    assert.deepEqual(planFor("expert"), PLAN);
+    assert.throws(() => planFor("nightmare"));
+  });
+
+  it("buys and costs only the chosen path", () => {
+    const state = new SphereState({}, [{ name: "A", mine: true }], 3);
+    assert.deepEqual(nextItem(state, planFor("easy")), parseItem("op10 x100"));
+    assert.deepEqual(nextItem(state, planFor("medium")), parseItem("shop2 lvl1"));
+    const { steps } = shoppingList(state, 1500, planFor("easy"));
+    assert.deepEqual(
+      steps.map((s) => s.perk),
+      [10],
+    );
+    assert.equal(remainingCost(new SphereState(), false, planFor("easy")), 300000);
+    assert.equal(remainingCost(new SphereState(), false, planFor("medium")), 300000 + 4000 * 28);
   });
 });
 

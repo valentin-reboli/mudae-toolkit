@@ -21,8 +21,9 @@ move the mouse or press a key.
 
 ### Sphere Advisor
 
-Tells you which sphere upgrades to buy next, following the upgrade chart (all four columns: Easy,
-Medium, Hard and Expert). Ouroperks (`$op`) 9, 5 and 8 and full upgrades go on the wishlist
+Tells you which sphere upgrades to buy next, following the upgrade chart. Pick a path (Easy, Medium,
+Hard or Expert, each with its requirements shown) and the plan follows that column and every column
+to its left. Ouroperks (`$op`) 9, 5 and 8 and full upgrades go on the wishlist
 characters you own, in wishlist order; ouroperk 10 goes on any character. Shop perks (`$shop`) apply
 to all characters.
 
