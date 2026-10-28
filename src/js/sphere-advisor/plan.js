@@ -65,7 +65,7 @@ export class SphereState {
         else (this.levels[name] ||= {})[perk] = level;
       }
     }
-    // Owned wishlist characters: ✅ on $wl, then any with perk 9 (a claimed wish may leave $wl)
+    // Owned wishlist characters: ✅ on $wls, then any with perk 9 (a claimed wish may leave the list)
     const wl = wishlist.filter((w) => w.mine).map((w) => w.name);
     for (const name of Object.keys(invested)) {
       if (this.has(name, 9) && !wl.includes(name)) wl.push(name);

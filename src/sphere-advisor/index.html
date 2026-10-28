@@ -54,22 +54,21 @@
           </div>
 
           <div class="card">
-            <h2 class="step"><span class="num">3</span> Send <code>$wl</code></h2>
+            <h2 class="step"><span class="num">3</span> Send <code>$wls</code></h2>
             <p class="hint">
-              The ✅ lines are wishlist characters you own: they get perks 9, 5 and 8 and full
-              upgrades, in this order. Paste every page.
+              Owned wishlist characters get perks 9, 5 and 8, and later they get full upgrades.
             </p>
             <textarea
               id="wl"
               spellcheck="false"
-              aria-label="$wl reply"
+              aria-label="$wls reply"
               placeholder="Satoru Gojo ✅ ⭐&#10;Roronoa Zoro&#10;Naruto Uzumaki ✅"
             ></textarea>
             <p class="parsed" id="wl-status" role="status"></p>
           </div>
 
           <div class="card">
-            <h2 class="step"><span class="num">4</span> A few numbers</h2>
+            <h2 class="step"><span class="num">4</span> Enter values</h2>
             <div class="numbers">
               <label>Spheres you have<input type="number" id="balance" min="0" /></label>
               <label>Characters you own<input type="number" id="owned" min="0" /></label>
@@ -81,10 +80,8 @@
 
         <section>
           <div class="card" id="result"></div>
-          <div class="card" id="characters"></div>
           <div class="card">
-            <h2>The plan</h2>
-            <p class="hint">The upgrade chart, all four columns, top to bottom.</p>
+            <h2>Upgrade plan</h2>
             <ol class="plan" id="plan"></ol>
           </div>
         </section>

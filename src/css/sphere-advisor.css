@@ -187,43 +187,6 @@ code {
   background: var(--accent);
 }
 
-.perks {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.perks th,
-.perks td {
-  padding: 5px 4px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-}
-
-.perks th {
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.perks .p {
-  width: 26px;
-  padding: 5px 0;
-  text-align: center;
-}
-
-.perks .ok {
-  color: var(--good);
-  font-weight: 700;
-}
-
-.perks .part {
-  color: var(--warn);
-}
-
-.perks .no {
-  color: var(--border);
-}
-
 .plan {
   margin: 0;
   padding: 0;

@@ -27,7 +27,7 @@ characters you own, in wishlist order; perk 10 goes on any character.
 
 1. Send `$mmsz=z!`, Mudae will DM you the characters with spheres in them; paste the whole DM
 2. Send `$shop` and paste the reply (or type the 10 levels)
-3. Send `$wl` and paste it, the ✅ lines are the wishlist characters you own
+3. Send `$wls` and paste it, the ✅ lines are the wishlist characters you own
 4. Enter your spheres and how many characters you own
 
 It lists every upgrade you can afford now, click by click, then what to save up for next. Your
