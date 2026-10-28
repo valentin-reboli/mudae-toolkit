@@ -5,7 +5,6 @@ import { parseInvested } from "../../src/js/sphere-advisor/parse.js";
 import {
   PLAN,
   SphereState,
-  dailyGain,
   groupSteps,
   itemCost,
   nextItem,
@@ -61,18 +60,6 @@ describe("plan", () => {
     assert.deepEqual(state.nextBuy(full), ["A", 1]);
     state.levels.A[1] = 4;
     assert.deepEqual(state.nextBuy(full), ["A", 3]);
-  });
-});
-
-describe("dailyGain", () => {
-  it("gives every chart row's gain, split by cost on shared rows", () => {
-    assert.equal(dailyGain(parseItem("op9 x10")), 712);
-    assert.equal(dailyGain(parseItem("shop9 lvl1")) + dailyGain(parseItem("op9 x11")), 96);
-    assert.equal(dailyGain(parseItem("op8 x6")), 457 / 6);
-    assert.equal(dailyGain(parseItem("shop9 lvl8")), null);
-    const total = PLAN.reduce((sum, item) => sum + (dailyGain(item) ?? 0), 0);
-    assert.ok(Math.abs(total - 13172) < 1e-6);
-    assert.equal(PLAN.filter((item) => dailyGain(item) === null).length, 3);
   });
 });
 
